@@ -1,14 +1,9 @@
 import type { Metadata } from "next";
-import {
-  ClerkProvider,
-  Show,
-  SignInButton,
-  SignUpButton,
-  UserButton,
-} from "@clerk/nextjs";
+import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
 import "./globals.css";
+import ConvexClerkProvider from "@/components/providers/ConvexClerkProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,14 +21,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body
-          className={cn(
-            "min-h-screen bg-background font-sans antialiased",
-            inter.variable,
-          )}
-        >
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          inter.variable,
+        )}
+      >
+        <ConvexClerkProvider>
           <header className="flex h-16 items-center justify-end gap-4 border-b px-6">
             <Show when="signed-out">
               <SignInButton />
@@ -50,8 +45,8 @@ export default function RootLayout({
           </header>
 
           {children}
-        </body>
-      </html>
-    </ClerkProvider>
+        </ConvexClerkProvider>
+      </body>
+    </html>
   );
 }
