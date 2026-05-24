@@ -1,9 +1,19 @@
 import type { Metadata } from "next";
-import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import {
+  RedirectToSignIn,
+  RedirectToSignUp,
+  Show,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+} from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 import ConvexClerkProvider from "@/components/providers/ConvexClerkProvider";
+import Navbar from "@/components/Navbar";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { SignalMedium } from "lucide-react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,32 +31,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          inter.variable,
-        )}
-      >
-        <ConvexClerkProvider>
-          <header className="flex h-16 items-center justify-end gap-4 border-b px-6">
-            <Show when="signed-out">
-              <SignInButton />
-              <SignUpButton>
-                <button className="h-10 cursor-pointer rounded-full bg-purple-700 px-4 text-sm font-medium text-white sm:h-12 sm:px-5 sm:text-base">
-                  Sign Up
-                </button>
-              </SignUpButton>
-            </Show>
-
+    <ConvexClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body
+          className={cn(
+            "min-h-screen bg-background font-sans antialiased",
+            inter.variable,
+          )}
+        >
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
             <Show when="signed-in">
-              <UserButton />
+              <div className="min-h-screen">
+                <Navbar />
+                <main className="px-4 sm:px-6 lg:px-8 py-8">{children}</main>
+              </div>
             </Show>
-          </header>
 
-          {children}
-        </ConvexClerkProvider>
-      </body>
-    </html>
+            <Show when="signed-out">
+              <RedirectToSignIn />
+            </Show>
+          </ThemeProvider>
+        </body>
+      </html>
+    </ConvexClerkProvider>
   );
 }
