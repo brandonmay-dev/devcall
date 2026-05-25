@@ -5,7 +5,6 @@ export const addComment = mutation({
   args: {
     content: v.string(),
     rating: v.number(),
-    interviewerId: v.string(),
     interviewId: v.id("interviews"),
   },
 
