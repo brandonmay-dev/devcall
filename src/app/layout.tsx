@@ -1,19 +1,12 @@
 import type { Metadata } from "next";
-import {
-  RedirectToSignIn,
-  RedirectToSignUp,
-  Show,
-  SignInButton,
-  SignUpButton,
-  UserButton,
-} from "@clerk/nextjs";
+import "@stream-io/video-react-sdk/dist/css/styles.css";
+import "./globals.css";
+import { RedirectToSignIn, Show } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
-import "./globals.css";
 import ConvexClerkProvider from "@/components/providers/ConvexClerkProvider";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import { SignalMedium } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 
 const inter = Inter({
