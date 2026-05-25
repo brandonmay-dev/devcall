@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Id } from "../../convex/_generated/dataModel";
-import { useMutation, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import toast from "react-hot-toast";
 import { MessageSquareIcon, StarIcon } from "lucide-react";
@@ -26,9 +26,10 @@ function CommentDialog({ interviewId }: { interviewId: Id<"interviews"> }) {
   const [isOpen, setIsOpen] = useState(false);
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState("3");
+  const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
 
   const addComment = useMutation(api.comments.addComment);
-  const users = useQuery(api.users.getUsers);
+  const users = useQuery(api.users.getUsers, isAuthenticated ? {} : "skip");
   const existingComments = useQuery(api.comments.getComments, { interviewId });
 
   const handleSubmit = async () => {
@@ -61,7 +62,9 @@ function CommentDialog({ interviewId }: { interviewId: Id<"interviews"> }) {
     </div>
   );
 
-  if (existingComments === undefined || users === undefined) return null;
+  if (isAuthLoading || existingComments === undefined || users === undefined) {
+    return null;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

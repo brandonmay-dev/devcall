@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
+import { useConvexAuth } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { Doc, Id } from "../../../../convex/_generated/dataModel";
 import toast from "react-hot-toast";
@@ -30,8 +31,12 @@ import CommentDialog from "@/components/CommentDialog";
 type Interview = Doc<"interviews">;
 
 function DashboardPage() {
-  const users = useQuery(api.users.getUsers);
-  const interviews = useQuery(api.interviews.getAllInterviews);
+  const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
+  const users = useQuery(api.users.getUsers, isAuthenticated ? {} : "skip");
+  const interviews = useQuery(
+    api.interviews.getAllInterviews,
+    isAuthenticated ? {} : "skip",
+  );
   const updateStatus = useMutation(api.interviews.updateInterviewStatus);
 
   const handleStatusUpdate = async (
@@ -46,7 +51,9 @@ function DashboardPage() {
     }
   };
 
-  if (!interviews || !users) return <LoaderUI />;
+  if (isAuthLoading || !isAuthenticated || !interviews || !users) {
+    return <LoaderUI />;
+  }
 
   const groupedInterviews = groupInterviews(interviews);
 

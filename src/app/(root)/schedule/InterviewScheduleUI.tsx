@@ -1,6 +1,6 @@
 import { useUser } from "@clerk/nextjs";
 import { useStreamVideoClient } from "@stream-io/video-react-sdk";
-import { useMutation, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 import { api } from "../../../../convex/_generated/api";
 import toast from "react-hot-toast";
@@ -44,11 +44,17 @@ const parseTimeSlot = (time: string) => {
 function InterviewScheduleUI() {
   const client = useStreamVideoClient();
   const { user } = useUser();
+  const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
   const [open, setOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
-  const interviews = useQuery(api.interviews.getAllInterviews) ?? [];
-  const users = useQuery(api.users.getUsers) ?? [];
+  const interviews =
+    useQuery(
+      api.interviews.getAllInterviews,
+      isAuthenticated ? {} : "skip",
+    ) ?? [];
+  const users =
+    useQuery(api.users.getUsers, isAuthenticated ? {} : "skip") ?? [];
   const createInterview = useMutation(api.interviews.createInterview);
 
   const candidates = users?.filter((u) => u.role === "candidate");
@@ -145,6 +151,14 @@ function InterviewScheduleUI() {
   const availableInterviewers = interviewers.filter(
     (i) => !formData.interviewerIds.includes(i.clerkId),
   );
+
+  if (isAuthLoading || !isAuthenticated) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2Icon className="size-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-7xl mx-auto p-6 space-y-8">
