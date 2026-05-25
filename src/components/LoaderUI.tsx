@@ -2,7 +2,7 @@ import { LoaderIcon } from "lucide-react";
 
 function LoaderUI() {
   return (
-    <div className="h-[calc(100vh-4rem-1px)] flex items-center justify-center">
+    <div className="flex h-[calc(100dvh-4rem-1px)] items-center justify-center">
       <LoaderIcon className="h-8 w-8 animate-spin text-muted-foreground" />
     </div>
   );

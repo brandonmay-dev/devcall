@@ -1,13 +1,19 @@
-import { DeviceSettings, useCall, VideoPreview } from "@stream-io/video-react-sdk";
+import {
+  DeviceSettings,
+  useCall,
+  VideoPreview,
+} from "@stream-io/video-react-sdk";
 import { useEffect, useState } from "react";
 import { Card } from "./ui/card";
 import { CameraIcon, MicIcon, SettingsIcon } from "lucide-react";
 import { Switch } from "./ui/switch";
 import { Button } from "./ui/button";
+import toast from "react-hot-toast";
 
 function MeetingSetup({ onSetupComplete }: { onSetupComplete: () => void }) {
   const [isCameraDisabled, setIsCameraDisabled] = useState(true);
   const [isMicDisabled, setIsMicDisabled] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
 
   const call = useCall();
 
@@ -24,25 +30,37 @@ function MeetingSetup({ onSetupComplete }: { onSetupComplete: () => void }) {
   }, [isMicDisabled, call.microphone]);
 
   const handleJoin = async () => {
-    await call.join();
-    onSetupComplete();
+    if (isJoining) return;
+
+    setIsJoining(true);
+    try {
+      await call.join();
+      onSetupComplete();
+    } catch (error) {
+      console.error("Failed to join meeting:", error);
+      toast.error("Unable to join the meeting right now.");
+    } finally {
+      setIsJoining(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-background/95">
+    <div className="flex min-h-[calc(100dvh-4rem-1px)] items-center justify-center bg-background/95 p-6">
       <div className="w-full max-w-300 mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* VIDEO PREVIEW CONTAINER */}
           <Card className="md:col-span-1 p-6 flex flex-col">
             <div>
               <h1 className="text-xl font-semibold mb-1">Camera Preview</h1>
-              <p className="text-sm text-muted-foreground">Make sure you look good!</p>
+              <p className="text-sm text-muted-foreground">
+                Make sure you look good!
+              </p>
             </div>
 
             {/* VIDEO PREVIEW */}
             <div className="mt-4 flex-1 min-h-100 rounded-xl overflow-hidden bg-muted/50 border relative">
               <div className="absolute inset-0">
-                <VideoPreview className="h-full w-full" />
+                <VideoPreview className="!h-full !w-full" />
               </div>
             </div>
           </Card>
@@ -54,11 +72,13 @@ function MeetingSetup({ onSetupComplete }: { onSetupComplete: () => void }) {
               {/* MEETING DETAILS  */}
               <div>
                 <h2 className="text-xl font-semibold mb-1">Meeting Details</h2>
-                <p className="text-sm text-muted-foreground break-all">{call.id}</p>
+                <p className="text-sm text-muted-foreground break-all">
+                  {call.id}
+                </p>
               </div>
 
               <div className="flex-1 flex flex-col justify-between">
-                <div className="spacey-6 mt-8">
+                <div className="mt-8 space-y-6">
                   {/* CAM CONTROL */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -74,7 +94,9 @@ function MeetingSetup({ onSetupComplete }: { onSetupComplete: () => void }) {
                     </div>
                     <Switch
                       checked={!isCameraDisabled}
-                      onCheckedChange={(checked) => setIsCameraDisabled(!checked)}
+                      onCheckedChange={(checked) =>
+                        setIsCameraDisabled(!checked)
+                      }
                     />
                   </div>
 
@@ -105,7 +127,9 @@ function MeetingSetup({ onSetupComplete }: { onSetupComplete: () => void }) {
                       </div>
                       <div>
                         <p className="font-medium">Settings</p>
-                        <p className="text-sm text-muted-foreground">Configure devices</p>
+                        <p className="text-sm text-muted-foreground">
+                          Configure devices
+                        </p>
                       </div>
                     </div>
                     <DeviceSettings />
@@ -114,11 +138,17 @@ function MeetingSetup({ onSetupComplete }: { onSetupComplete: () => void }) {
 
                 {/* JOIN BTN */}
                 <div className="space-y-3 mt-8">
-                  <Button className="w-full" size="lg" onClick={handleJoin}>
-                    Join Meeting
+                  <Button
+                    className="w-full"
+                    size="lg"
+                    onClick={handleJoin}
+                    disabled={isJoining}
+                  >
+                    {isJoining ? "Joining..." : "Join Meeting"}
                   </Button>
                   <p className="text-xs text-center text-muted-foreground">
-                    Do not worry, our team is super friendly! We want you to succeed. 🎉
+                    Do not worry, our team is super friendly! We want you to
+                    succeed. 🎉
                   </p>
                 </div>
               </div>
